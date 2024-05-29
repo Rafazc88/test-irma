@@ -1,30 +1,30 @@
-from openai import OpenAI
-import streamlit as st
+import tkinter as tk
 
-with st.sidebar:
-    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
-    "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
-    "[View the source code](https://github.com/streamlit/llm-examples/blob/main/Chatbot.py)"
-    "[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/llm-examples?quickstart=1)"
+# Funciones del chatbot
+def enviar_mensaje():
+    mensaje = entrada_mensaje.get()
+    if mensaje:
+        chat_area.config(state="normal")
+        chat_area.insert(tk.END, f"Tú: {mensaje}\n")
+        chat_area.config(state="disabled")
+        entrada_mensaje.delete(0, tk.END)
 
-st.title("💬 Chatbot")
-st.caption("🚀 A Streamlit chatbot powered by OpenAI")
-if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
+# Configuración de la ventana principal
+ventana = tk.Tk()
+ventana.title("Chatbot")
+ventana.configure(bg="#007bff")
 
-for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).write(msg["content"])
+# Área de chat
+chat_area = tk.Text(ventana, wrap=tk.WORD, bg="#007bff", fg="white", font=("Arial", 12))
+chat_area.pack(padx=10, pady=10, expand=True, fill="both")
+chat_area.config(state="disabled")
 
-if prompt := st.chat_input():
-    if not openai_api_key:
-        st.info("Please add your OpenAI API key to continue.")
-        st.stop()
+# Barra de entrada
+entrada_mensaje = tk.Entry(ventana, bg="white", fg="#007bff", font=("Arial", 12))
+entrada_mensaje.pack(padx=10, pady=5)
 
-    client = OpenAI(api_key=openai_api_key)
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user").write(prompt)
-    response = client.chat.completions.create(model="gpt-3.5-turbo", messages=st.session_state.messages)
-    msg = response.choices[0].message.content
-    st.session_state.messages.append({"role": "assistant", "content": msg})
-    st.chat_message("assistant").write(msg)
+# Botón de enviar
+boton_enviar = tk.Button(ventana, text="Enviar", command=enviar_mensaje, bg="#007bff", fg="white", font=("Arial", 12))
+boton_enviar.pack(pady=5)
 
+ventana.mainloop()
